@@ -5,6 +5,22 @@
 -- ============================================
 
 -- ============================================
+-- AUTH TABLE SAFETY (Phase 6)
+-- Ensures sign-in works even if db:push was not re-run after auth schema changes.
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS "user" (
+    user_id SERIAL PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('customer', 'employee', 'admin')),
+    customer_id INTEGER REFERENCES customer(customer_id) ON DELETE CASCADE,
+    employee_ssn VARCHAR(11) REFERENCES employee(ssn) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ============================================
 -- VIEWS (Requirement 2f - 5%)
 -- ============================================
 

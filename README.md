@@ -32,7 +32,7 @@ npm --version
 
 ### Step 1: Install Dependencies
 
-Navigate to the `ehotels` folder and install Node.js packages:
+Navigate to the `root dir` folder and install Node.js packages:
 
 ```bash
 cd ehotels

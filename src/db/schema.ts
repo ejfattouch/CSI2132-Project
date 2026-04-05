@@ -8,7 +8,6 @@ import {
   primaryKey,
   serial,
   timestamp,
-  text,
   check,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
@@ -332,6 +331,50 @@ export const rentingRelations = relations(renting, ({ one }) => ({
 }));
 
 // ============================================
+// SQL VIEWS (read-only report tables)
+// ============================================
+export const roomsPerArea = pgTable("rooms_per_area", {
+  area: varchar("area", { length: 255 }).notNull(),
+  availableRooms: integer("available_rooms").notNull(),
+});
+
+export const hotelCapacity = pgTable("hotel_capacity", {
+  hotelId: integer("hotel_id").notNull(),
+  hotelAddress: varchar("hotel_address", { length: 255 }).notNull(),
+  chainName: varchar("chain_name", { length: 100 }).notNull(),
+  starRating: integer("star_rating").notNull(),
+  totalRooms: integer("total_rooms").notNull(),
+  singleRooms: integer("single_rooms").notNull(),
+  doubleRooms: integer("double_rooms").notNull(),
+  suiteRooms: integer("suite_rooms").notNull(),
+  familyRooms: integer("family_rooms").notNull(),
+  totalGuestCapacity: integer("total_guest_capacity").notNull(),
+});
+
+// ============================================
+// AUTHENTICATION (Role-based access control)
+// ============================================
+export const user = pgTable(
+  "user",
+  {
+    userId: serial("user_id").primaryKey(),
+    email: varchar("email", { length: 100 }).notNull().unique(),
+    passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+    // Role enum: customer, employee, admin
+    role: varchar("role", { length: 20 }).notNull(),
+    // Link to customer (if role = customer)
+    customerId: integer("customer_id").references(() => customer.customerId, { onDelete: "cascade" }),
+    // Link to employee (if role = employee or admin)
+    employeeSsn: varchar("employee_ssn", { length: 11 }).references(() => employee.ssn, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    check("role_check", sql`${table.role} IN ('customer', 'employee', 'admin')`),
+  ]
+);
+
+// ============================================
 // TYPE EXPORTS
 // ============================================
 export type HotelChain = typeof hotelChain.$inferSelect;
@@ -348,3 +391,7 @@ export type Booking = typeof booking.$inferSelect;
 export type NewBooking = typeof booking.$inferInsert;
 export type Renting = typeof renting.$inferSelect;
 export type NewRenting = typeof renting.$inferInsert;
+export type RoomsPerArea = typeof roomsPerArea.$inferSelect;
+export type HotelCapacity = typeof hotelCapacity.$inferSelect;
+export type User = typeof user.$inferSelect;
+export type NewUser = typeof user.$inferInsert;
