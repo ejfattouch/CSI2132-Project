@@ -151,7 +151,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
           </Badge>
         ) : null}
 
-        <Card className="border-border/70 bg-card/90">
+        <Card className="border-border/70 bg-card/90 overflow-hidden">
           <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <CardTitle>Employees</CardTitle>
@@ -197,7 +197,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 overflow-hidden">
             <div className="flex flex-wrap gap-2">
               <Link href={buildReturnPath(q, "name-asc")} className="text-sm text-muted-foreground hover:text-foreground">Sort A-Z</Link>
               <Link href={buildReturnPath(q, "name-desc")} className="text-sm text-muted-foreground hover:text-foreground">Sort Z-A</Link>
@@ -205,6 +205,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
               <Link href={buildReturnPath(q, "hotel")} className="text-sm text-muted-foreground hover:text-foreground">Sort by hotel</Link>
             </div>
 
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -237,20 +238,39 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
                             <DialogHeader>
                               <DialogTitle>Edit Employee</DialogTitle>
                               <DialogDescription>Update hotel assignment or profile fields.</DialogDescription>
+                              <DialogDescription>Employee SSN: {row.ssn}</DialogDescription>
                             </DialogHeader>
-                            <form action={updateEmployeeAction} className="space-y-3">
+                            <form action={updateEmployeeAction} className="space-y-1">
                               <input type="hidden" name="returnPath" value={returnPath} />
-                              <Input name="ssn" required defaultValue={row.ssn} />
-                              <select name="hotelId" required defaultValue={String(row.hotelId)} className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm">
-                                {hotelOptions.map((hotel) => (
-                                  <option key={hotel.hotelId} value={hotel.hotelId}>
-                                    Hotel {hotel.hotelId} - {hotel.address}
-                                  </option>
-                                ))}
-                              </select>
-                              <Input name="fullName" required defaultValue={row.fullName} />
-                              <Input name="address" required defaultValue={row.address} />
-                              <Input name="role" required defaultValue={row.role} />
+                              <input type="hidden" name="ssn" value={row.ssn} />
+                              <div className="space-y-1.5">
+                                <label htmlFor={`hotel-${row.ssn}`} className="text-sm font-medium">Hotel</label>
+                                <select
+                                  id={`hotel-${row.ssn}`}
+                                  name="hotelId"
+                                  required
+                                  defaultValue={String(row.hotelId)}
+                                  className="h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm"
+                                >
+                                  {hotelOptions.map((hotel) => (
+                                    <option key={hotel.hotelId} value={hotel.hotelId}>
+                                      Hotel {hotel.hotelId} - {hotel.address}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label htmlFor={`fullName-${row.ssn}`} className="text-sm font-medium">Full Name</label>
+                                <Input id={`fullName-${row.ssn}`} name="fullName" required defaultValue={row.fullName} />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label htmlFor={`address-${row.ssn}`} className="text-sm font-medium">Address</label>
+                                <Input id={`address-${row.ssn}`} name="address" required defaultValue={row.address} />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label htmlFor={`role-${row.ssn}`} className="text-sm font-medium">Role</label>
+                                <Input id={`role-${row.ssn}`} name="role" required defaultValue={row.role} />
+                              </div>
                               <div className="flex justify-end gap-2 pt-1">
                                 <Button type="submit">Save Changes</Button>
                               </div>
@@ -261,7 +281,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
                         <form action={deleteEmployeeAction}>
                           <input type="hidden" name="returnPath" value={returnPath} />
                           <input type="hidden" name="ssn" value={row.ssn} />
-                          <Button size="sm" variant="destructive">Delete</Button>
+                          <Button type="submit" size="sm" variant="destructive">Delete</Button>
                         </form>
                       </div>
                     </TableCell>
@@ -269,6 +289,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

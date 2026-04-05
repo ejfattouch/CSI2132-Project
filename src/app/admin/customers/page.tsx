@@ -227,11 +227,11 @@ export default async function CustomersAdminPage({ searchParams }: CustomersPage
                           <DialogContent className="sm:max-w-lg">
                             <DialogHeader>
                               <DialogTitle>Edit Customer</DialogTitle>
-                              <DialogDescription>Update customer profile fields.</DialogDescription>
+                              <DialogDescription>Update customer profile fields for Customer ID: {String(row.customerId)}</DialogDescription>
                             </DialogHeader>
                             <form action={updateCustomerAction} className="space-y-3">
                               <input type="hidden" name="returnPath" value={returnPath} />
-                              <Input name="customerId" readOnly defaultValue={String(row.customerId)} />
+                              <input type="hidden" name="customerId" value={String(row.customerId)} />
                               <Input name="fullName" required defaultValue={row.fullName} />
                               <Input name="address" required defaultValue={row.address} />
                               <select name="idType" required defaultValue={row.idType} className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm">
@@ -249,8 +249,8 @@ export default async function CustomersAdminPage({ searchParams }: CustomersPage
 
                         <form action={deleteCustomerAction}>
                           <input type="hidden" name="returnPath" value={returnPath} />
-                          <input type="hidden" name="customerId" value={row.customerId} />
-                          <Button size="sm" variant="destructive">Delete</Button>
+                          <input type="hidden" name="customerId" value={String(row.customerId)} />
+                          <Button type="submit" size="sm" variant="destructive">Delete</Button>
                         </form>
                       </div>
                     </TableCell>

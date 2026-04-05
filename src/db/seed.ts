@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq } from "drizzle-orm";
+import {eq, sql} from "drizzle-orm";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import crypto from "crypto";
@@ -135,25 +135,54 @@ const generateEmployees = (hotels: ReturnType<typeof generateHotels>) => {
   }> = [];
 
   const roles = ["Manager", "Receptionist", "Housekeeper", "Concierge", "Chef"];
-  const firstNames = ["John", "Jane", "Michael", "Sarah", "David", "Emily", "Robert", "Lisa", "James", "Maria"];
-  const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Martinez", "Wilson"];
+  const firstNames = [
+    "James", "Mary", "Robert", "Patricia", "Michael", "Jennifer", "William", "Linda",
+    "Richard", "Elizabeth", "Joseph", "Barbara", "Thomas", "Susan", "Christopher", "Jessica",
+    "Charles", "Sarah", "Daniel", "Karen", "Matthew", "Lisa", "Anthony", "Nancy",
+    "Mark", "Betty", "Donald", "Margaret", "Steven", "Sandra", "Paul", "Ashley",
+    "Andrew", "Kimberly", "Joshua", "Emily", "Kenneth", "Donna", "Kevin", "Michelle",
+    "Brian", "Dorothy", "George", "Carol", "Timothy", "Amanda", "Ronald", "Melissa",
+    "Edward", "Deborah", "Jason", "Stephanie", "Jeffrey", "Rebecca", "Ryan", "Sharon",
+    "Jacob", "Laura", "Gary", "Cynthia", "Nicholas", "Kathleen", "Eric", "Amy",
+    "Jonathan", "Angela", "Stephen", "Shirley", "Larry", "Anna", "Justin", "Brenda",
+    "Scott", "Pamela", "Brandon", "Emma", "Benjamin", "Nicole", "Samuel", "Helen",
+    "Raymond", "Samantha", "Gregory", "Katherine", "Frank", "Christine", "Alexander", "Debra",
+    "Patrick", "Rachel", "Jack", "Carolyn", "Dennis", "Janet", "Jerry", "Catherine"
+  ];
+  const lastNames = [
+    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+    "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+    "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+    "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young",
+    "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+    "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+    "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker",
+    "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy",
+    "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey",
+    "Reed", "Kelly", "Howard", "Ramos", "Kim", "Cox", "Ward", "Richardson",
+    "Watson", "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza",
+    "Ruiz", "Hughes", "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers"
+  ];
 
+  let employeeIndex = 0;
   hotels.forEach((h, hotelIndex) => {
     // 3-5 employees per hotel
     const numEmployees = 3 + (hotelIndex % 3);
 
     for (let i = 0; i < numEmployees; i++) {
       const ssn = `${String(hotelIndex + 1).padStart(3, "0")}-${String(i + 1).padStart(2, "0")}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
-      const firstName = firstNames[(hotelIndex + i) % firstNames.length];
-      const lastName = lastNames[(hotelIndex * 2 + i) % lastNames.length];
+      // Use employeeIndex to ensure unique name combinations
+      const firstName = firstNames[employeeIndex % firstNames.length];
+      const lastName = lastNames[Math.floor(employeeIndex / firstNames.length) % lastNames.length];
 
       employees.push({
         ssn,
         hotelId: h.hotelId,
         fullName: `${firstName} ${lastName}`,
-        address: `${200 + i * 5} Employee Ave, Suite ${i + 1}`,
+        address: `${200 + employeeIndex * 5} Employee Ave, Suite ${employeeIndex + 1}`,
         role: i === 0 ? "Manager" : roles[(i % (roles.length - 1)) + 1],
       });
+      employeeIndex++;
     }
   });
 
@@ -253,16 +282,38 @@ const generateCustomers = () => {
     registrationDate: string;
   }> = [];
 
-  const firstNames = ["Alice", "Bob", "Charlie", "Diana", "Edward", "Fiona", "George", "Hannah", "Ivan", "Julia"];
-  const lastNames = ["Anderson", "Baker", "Clark", "Douglas", "Evans", "Foster", "Green", "Harris", "Irwin", "Jackson"];
+  const firstNames = [
+    "Oliver", "Emma", "Liam", "Ava", "Noah", "Sophia", "Ethan", "Isabella",
+    "Mason", "Mia", "Lucas", "Charlotte", "Logan", "Amelia", "Aiden", "Harper",
+    "Elijah", "Evelyn", "Sebastian", "Abigail", "Henry", "Ella", "Jackson", "Scarlett",
+    "Carter", "Grace", "Owen", "Chloe", "Wyatt", "Victoria", "Jack", "Riley",
+    "Luke", "Aria", "Jayden", "Lily", "Dylan", "Aubrey", "Grayson", "Zoey",
+    "Levi", "Penelope", "Isaac", "Lillian", "Gabriel", "Addison", "Julian", "Layla",
+    "Mateo", "Natalie", "Anthony", "Camila", "Jaxon", "Hannah", "Lincoln", "Brooklyn",
+    "Joshua", "Zoe", "Christopher", "Nora", "Andrew", "Leah", "Theodore", "Savannah"
+  ];
+  const lastNames = [
+    "Chen", "Patel", "O'Brien", "Kim", "Singh", "Nakamura", "Johansson", "Müller",
+    "Fernandez", "Costa", "Ivanov", "Kowalski", "Andersen", "Schmidt", "Larsson", "Rossi",
+    "Tanaka", "Sato", "Watanabe", "Yamamoto", "Suzuki", "Takahashi", "Kobayashi", "Yoshida",
+    "Gupta", "Sharma", "Kumar", "Verma", "Joshi", "Kapoor", "Malhotra", "Mehta",
+    "Dubois", "Bernard", "Moreau", "Laurent", "Simon", "Michel", "Lefebvre", "Leroy",
+    "Becker", "Wagner", "Hoffmann", "Schulz", "Fischer", "Weber", "Meyer", "Richter",
+    "O'Connor", "Murphy", "Kelly", "Sullivan", "McCarthy", "Walsh", "Burke", "Byrne",
+    "Andersson", "Eriksson", "Karlsson", "Nilsson", "Lindberg", "Olsson", "Persson", "Svensson"
+  ];
   const idTypes = ["SSN", "SIN", "DriverLicense", "Passport"];
 
   for (let i = 0; i < 30; i++) {
     const regDate = new Date();
     regDate.setDate(regDate.getDate() - Math.floor(Math.random() * 365));
 
+    // Use index to get unique name combinations
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = lastNames[i % lastNames.length];
+
     customers.push({
-      fullName: `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`,
+      fullName: `${firstName} ${lastName}`,
       address: `${500 + i * 10} Customer Blvd, Apt ${i + 1}`,
       idType: idTypes[i % idTypes.length],
       registrationDate: regDate.toISOString().split("T")[0],
@@ -419,7 +470,7 @@ async function seed() {
           .where(eq(hotel.hotelId, h.hotelId));
       }
     }
-    console.log(`   ✓ Managers assigned`);
+    console.log(`   ✓ Managers assi gned`);
 
     // Insert hotel phones
     console.log("📞 Inserting hotel phones...");
@@ -506,6 +557,15 @@ async function seed() {
       - employee@example.com (employee)
       - admin@example.com (admin)
       Password for all: password123`);
+
+    // Reset sequences to avoid duplicate key errors on future inserts
+    console.log("🔄 Resetting sequences...");
+    await db.execute(sql`SELECT setval('hotel_hotel_id_seq', (SELECT COALESCE(MAX(hotel_id), 0) FROM hotel))`);
+    await db.execute(sql`SELECT setval('customer_customer_id_seq', (SELECT COALESCE(MAX(customer_id), 0) FROM customer))`);
+    await db.execute(sql`SELECT setval('booking_booking_id_seq', (SELECT COALESCE(MAX(booking_id), 0) FROM booking))`);
+    await db.execute(sql`SELECT setval('renting_renting_id_seq', (SELECT COALESCE(MAX(renting_id), 0) FROM renting))`);
+    await db.execute(sql`SELECT setval('user_user_id_seq', (SELECT COALESCE(MAX(user_id), 0) FROM "user"))`);
+    console.log("   ✓ Sequences reset");
 
     console.log("\n✅ Database seeded successfully!");
     console.log("\n📊 Summary:");

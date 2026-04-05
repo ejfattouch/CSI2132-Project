@@ -1,0 +1,1132 @@
+{
+  "id": "d3f8a2cd-9f25-41ed-807e-c657cde372ee",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.booking": {
+      "name": "booking",
+      "schema": "",
+      "columns": {
+        "booking_id": {
+          "name": "booking_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "booking_customer_id_customer_customer_id_fk": {
+          "name": "booking_customer_id_customer_customer_id_fk",
+          "tableFrom": "booking",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "columnsTo": [
+            "customer_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "booking_hotel_id_hotel_hotel_id_fk": {
+          "name": "booking_hotel_id_hotel_hotel_id_fk",
+          "tableFrom": "booking",
+          "tableTo": "hotel",
+          "columnsFrom": [
+            "hotel_id"
+          ],
+          "columnsTo": [
+            "hotel_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "booking_date_check": {
+          "name": "booking_date_check",
+          "value": "\"booking\".\"end_date\" > \"booking\".\"start_date\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.booking_archive": {
+      "name": "booking_archive",
+      "schema": "",
+      "columns": {
+        "archive_id": {
+          "name": "archive_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "original_booking_id": {
+          "name": "original_booking_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_address": {
+          "name": "hotel_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_name": {
+          "name": "chain_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.customer": {
+      "name": "customer",
+      "schema": "",
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_type": {
+          "name": "id_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registration_date": {
+          "name": "registration_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "id_type_check": {
+          "name": "id_type_check",
+          "value": "\"customer\".\"id_type\" IN ('SSN', 'SIN', 'DriverLicense', 'Passport')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.employee": {
+      "name": "employee",
+      "schema": "",
+      "columns": {
+        "ssn": {
+          "name": "ssn",
+          "type": "varchar(11)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "employee_hotel_id_hotel_hotel_id_fk": {
+          "name": "employee_hotel_id_hotel_hotel_id_fk",
+          "tableFrom": "employee",
+          "tableTo": "hotel",
+          "columnsFrom": [
+            "hotel_id"
+          ],
+          "columnsTo": [
+            "hotel_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.hotel": {
+      "name": "hotel",
+      "schema": "",
+      "columns": {
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_chain_central_address": {
+          "name": "hotel_chain_central_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "star_rating": {
+          "name": "star_rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "manager_ssn": {
+          "name": "manager_ssn",
+          "type": "varchar(11)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hotel_hotel_chain_central_address_hotel_chain_central_address_fk": {
+          "name": "hotel_hotel_chain_central_address_hotel_chain_central_address_fk",
+          "tableFrom": "hotel",
+          "tableTo": "hotel_chain",
+          "columnsFrom": [
+            "hotel_chain_central_address"
+          ],
+          "columnsTo": [
+            "central_address"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "hotel_hotel_id_pk": {
+          "name": "hotel_hotel_id_pk",
+          "columns": [
+            "hotel_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "star_rating_check": {
+          "name": "star_rating_check",
+          "value": "\"hotel\".\"star_rating\" >= 1 AND \"hotel\".\"star_rating\" <= 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.hotel_chain": {
+      "name": "hotel_chain",
+      "schema": "",
+      "columns": {
+        "central_address": {
+          "name": "central_address",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "chain_name": {
+          "name": "chain_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.hotel_chain_email": {
+      "name": "hotel_chain_email",
+      "schema": "",
+      "columns": {
+        "central_address": {
+          "name": "central_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_address": {
+          "name": "email_address",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hotel_chain_email_central_address_hotel_chain_central_address_fk": {
+          "name": "hotel_chain_email_central_address_hotel_chain_central_address_fk",
+          "tableFrom": "hotel_chain_email",
+          "tableTo": "hotel_chain",
+          "columnsFrom": [
+            "central_address"
+          ],
+          "columnsTo": [
+            "central_address"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "hotel_chain_email_central_address_email_address_pk": {
+          "name": "hotel_chain_email_central_address_email_address_pk",
+          "columns": [
+            "central_address",
+            "email_address"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.hotel_chain_phone": {
+      "name": "hotel_chain_phone",
+      "schema": "",
+      "columns": {
+        "central_address": {
+          "name": "central_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hotel_chain_phone_central_address_hotel_chain_central_address_fk": {
+          "name": "hotel_chain_phone_central_address_hotel_chain_central_address_fk",
+          "tableFrom": "hotel_chain_phone",
+          "tableTo": "hotel_chain",
+          "columnsFrom": [
+            "central_address"
+          ],
+          "columnsTo": [
+            "central_address"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "hotel_chain_phone_central_address_phone_number_pk": {
+          "name": "hotel_chain_phone_central_address_phone_number_pk",
+          "columns": [
+            "central_address",
+            "phone_number"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.hotel_phone": {
+      "name": "hotel_phone",
+      "schema": "",
+      "columns": {
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "hotel_phone_hotel_id_hotel_hotel_id_fk": {
+          "name": "hotel_phone_hotel_id_hotel_hotel_id_fk",
+          "tableFrom": "hotel_phone",
+          "tableTo": "hotel",
+          "columnsFrom": [
+            "hotel_id"
+          ],
+          "columnsTo": [
+            "hotel_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "hotel_phone_hotel_id_phone_number_pk": {
+          "name": "hotel_phone_hotel_id_phone_number_pk",
+          "columns": [
+            "hotel_id",
+            "phone_number"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.renting": {
+      "name": "renting",
+      "schema": "",
+      "columns": {
+        "renting_id": {
+          "name": "renting_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "employee_ssn": {
+          "name": "employee_ssn",
+          "type": "varchar(11)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "booking_id": {
+          "name": "booking_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_amount": {
+          "name": "payment_amount",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_date": {
+          "name": "payment_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "renting_customer_id_customer_customer_id_fk": {
+          "name": "renting_customer_id_customer_customer_id_fk",
+          "tableFrom": "renting",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "columnsTo": [
+            "customer_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "renting_hotel_id_hotel_hotel_id_fk": {
+          "name": "renting_hotel_id_hotel_hotel_id_fk",
+          "tableFrom": "renting",
+          "tableTo": "hotel",
+          "columnsFrom": [
+            "hotel_id"
+          ],
+          "columnsTo": [
+            "hotel_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "renting_employee_ssn_employee_ssn_fk": {
+          "name": "renting_employee_ssn_employee_ssn_fk",
+          "tableFrom": "renting",
+          "tableTo": "employee",
+          "columnsFrom": [
+            "employee_ssn"
+          ],
+          "columnsTo": [
+            "ssn"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "renting_booking_id_booking_booking_id_fk": {
+          "name": "renting_booking_id_booking_booking_id_fk",
+          "tableFrom": "renting",
+          "tableTo": "booking",
+          "columnsFrom": [
+            "booking_id"
+          ],
+          "columnsTo": [
+            "booking_id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "renting_date_check": {
+          "name": "renting_date_check",
+          "value": "\"renting\".\"end_date\" > \"renting\".\"start_date\""
+        },
+        "payment_status_check": {
+          "name": "payment_status_check",
+          "value": "\"renting\".\"payment_status\" IN ('pending', 'paid', 'refunded')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.renting_archive": {
+      "name": "renting_archive",
+      "schema": "",
+      "columns": {
+        "archive_id": {
+          "name": "archive_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "original_renting_id": {
+          "name": "original_renting_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_address": {
+          "name": "hotel_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_name": {
+          "name": "chain_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "employee_ssn": {
+          "name": "employee_ssn",
+          "type": "varchar(11)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "employee_name": {
+          "name": "employee_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_amount": {
+          "name": "payment_amount",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.room": {
+      "name": "room",
+      "schema": "",
+      "columns": {
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "view_type": {
+          "name": "view_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extendible": {
+          "name": "extendible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "room_hotel_id_hotel_hotel_id_fk": {
+          "name": "room_hotel_id_hotel_hotel_id_fk",
+          "tableFrom": "room",
+          "tableTo": "hotel",
+          "columnsFrom": [
+            "hotel_id"
+          ],
+          "columnsTo": [
+            "hotel_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "room_room_number_hotel_id_pk": {
+          "name": "room_room_number_hotel_id_pk",
+          "columns": [
+            "room_number",
+            "hotel_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "price_check": {
+          "name": "price_check",
+          "value": "\"room\".\"price\" >= 0"
+        },
+        "capacity_check": {
+          "name": "capacity_check",
+          "value": "\"room\".\"capacity\" IN ('single', 'double', 'suite', 'family')"
+        },
+        "view_type_check": {
+          "name": "view_type_check",
+          "value": "\"room\".\"view_type\" IS NULL OR \"room\".\"view_type\" IN ('sea', 'mountain')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.room_amenities": {
+      "name": "room_amenities",
+      "schema": "",
+      "columns": {
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amenity_type": {
+          "name": "amenity_type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "room_amenities_room_number_hotel_id_amenity_type_pk": {
+          "name": "room_amenities_room_number_hotel_id_amenity_type_pk",
+          "columns": [
+            "room_number",
+            "hotel_id",
+            "amenity_type"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.room_problems": {
+      "name": "room_problems",
+      "schema": "",
+      "columns": {
+        "room_number": {
+          "name": "room_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "problem_type": {
+          "name": "problem_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "room_problems_room_number_hotel_id_problem_type_pk": {
+          "name": "room_problems_room_number_hotel_id_problem_type_pk",
+          "columns": [
+            "room_number",
+            "hotel_id",
+            "problem_type"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "employee_ssn": {
+          "name": "employee_ssn",
+          "type": "varchar(11)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_customer_id_customer_customer_id_fk": {
+          "name": "user_customer_id_customer_customer_id_fk",
+          "tableFrom": "user",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "columnsTo": [
+            "customer_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_employee_ssn_employee_ssn_fk": {
+          "name": "user_employee_ssn_employee_ssn_fk",
+          "tableFrom": "user",
+          "tableTo": "employee",
+          "columnsFrom": [
+            "employee_ssn"
+          ],
+          "columnsTo": [
+            "ssn"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "role_check": {
+          "name": "role_check",
+          "value": "\"user\".\"role\" IN ('customer', 'employee', 'admin')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {
+    "public.hotel_capacity": {
+      "columns": {
+        "hotel_id": {
+          "name": "hotel_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hotel_address": {
+          "name": "hotel_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_name": {
+          "name": "chain_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "star_rating": {
+          "name": "star_rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_rooms": {
+          "name": "total_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "single_rooms": {
+          "name": "single_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "double_rooms": {
+          "name": "double_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "suite_rooms": {
+          "name": "suite_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "family_rooms": {
+          "name": "family_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_guest_capacity": {
+          "name": "total_guest_capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "\n  SELECT\n    h.hotel_id,\n    h.address AS hotel_address,\n    hc.chain_name,\n    h.star_rating,\n    COUNT(r.room_number) AS total_rooms,\n    COUNT(CASE WHEN r.capacity = 'single' THEN 1 END) AS single_rooms,\n    COUNT(CASE WHEN r.capacity = 'double' THEN 1 END) AS double_rooms,\n    COUNT(CASE WHEN r.capacity = 'suite' THEN 1 END) AS suite_rooms,\n    COUNT(CASE WHEN r.capacity = 'family' THEN 1 END) AS family_rooms,\n    SUM(CASE\n      WHEN r.capacity = 'single' THEN 1\n      WHEN r.capacity = 'double' THEN 2\n      WHEN r.capacity = 'suite' THEN 2\n      WHEN r.capacity = 'family' THEN 4\n      ELSE 0\n    END) AS total_guest_capacity\n  FROM hotel h\n  JOIN hotel_chain hc ON h.hotel_chain_central_address = hc.central_address\n  LEFT JOIN room r ON h.hotel_id = r.hotel_id\n  GROUP BY h.hotel_id, h.address, hc.chain_name, h.star_rating\n",
+      "name": "hotel_capacity",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    },
+    "public.rooms_per_area": {
+      "columns": {
+        "area": {
+          "name": "area",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "available_rooms": {
+          "name": "available_rooms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "\n  SELECT\n    h.address AS area,\n    COUNT(r.room_number) AS available_rooms\n  FROM hotel h\n  JOIN room r ON h.hotel_id = r.hotel_id\n  WHERE NOT EXISTS (\n    SELECT 1 FROM booking b\n    WHERE b.hotel_id = r.hotel_id\n      AND b.room_number = r.room_number\n      AND CURRENT_DATE BETWEEN b.start_date AND b.end_date\n  )\n  AND NOT EXISTS (\n    SELECT 1 FROM renting rt\n    WHERE rt.hotel_id = r.hotel_id\n      AND rt.room_number = r.room_number\n      AND CURRENT_DATE BETWEEN rt.start_date AND rt.end_date\n  )\n  GROUP BY h.address\n",
+      "name": "rooms_per_area",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

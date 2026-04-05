@@ -243,7 +243,7 @@ export default async function HotelsAdminPage({ searchParams }: HotelsPageProps)
                             </DialogHeader>
                             <form action={updateHotelAction} className="space-y-3">
                               <input type="hidden" name="returnPath" value={returnPath} />
-                              <input type="hidden" name="hotelId" value={row.hotelId} />
+                              <input type="hidden" name="hotelId" value={String(row.hotelId)} />
                               <select name="chainAddress" required defaultValue={row.chainAddress} className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm">
                                 {chainOptions.map((chain) => (
                                   <option key={chain.centralAddress} value={chain.centralAddress}>
@@ -264,8 +264,8 @@ export default async function HotelsAdminPage({ searchParams }: HotelsPageProps)
 
                         <form action={deleteHotelAction}>
                           <input type="hidden" name="returnPath" value={returnPath} />
-                          <input type="hidden" name="hotelId" value={row.hotelId} />
-                          <Button size="sm" variant="destructive">Delete</Button>
+                          <input type="hidden" name="hotelId" value={String(row.hotelId)} />
+                          <Button type="submit" size="sm" variant="destructive">Delete</Button>
                         </form>
                       </div>
                     </TableCell>

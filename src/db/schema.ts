@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgView,
   varchar,
   integer,
   boolean,
@@ -331,14 +332,33 @@ export const rentingRelations = relations(renting, ({ one }) => ({
 }));
 
 // ============================================
-// SQL VIEWS (read-only report tables)
+// SQL VIEWS (using pgView for proper view definitions)
 // ============================================
-export const roomsPerArea = pgTable("rooms_per_area", {
+export const roomsPerArea = pgView("rooms_per_area", {
   area: varchar("area", { length: 255 }).notNull(),
   availableRooms: integer("available_rooms").notNull(),
-});
+}).as(sql`
+  SELECT
+    h.address AS area,
+    COUNT(r.room_number) AS available_rooms
+  FROM hotel h
+  JOIN room r ON h.hotel_id = r.hotel_id
+  WHERE NOT EXISTS (
+    SELECT 1 FROM booking b
+    WHERE b.hotel_id = r.hotel_id
+      AND b.room_number = r.room_number
+      AND CURRENT_DATE BETWEEN b.start_date AND b.end_date
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM renting rt
+    WHERE rt.hotel_id = r.hotel_id
+      AND rt.room_number = r.room_number
+      AND CURRENT_DATE BETWEEN rt.start_date AND rt.end_date
+  )
+  GROUP BY h.address
+`);
 
-export const hotelCapacity = pgTable("hotel_capacity", {
+export const hotelCapacity = pgView("hotel_capacity", {
   hotelId: integer("hotel_id").notNull(),
   hotelAddress: varchar("hotel_address", { length: 255 }).notNull(),
   chainName: varchar("chain_name", { length: 100 }).notNull(),
@@ -349,7 +369,29 @@ export const hotelCapacity = pgTable("hotel_capacity", {
   suiteRooms: integer("suite_rooms").notNull(),
   familyRooms: integer("family_rooms").notNull(),
   totalGuestCapacity: integer("total_guest_capacity").notNull(),
-});
+}).as(sql`
+  SELECT
+    h.hotel_id,
+    h.address AS hotel_address,
+    hc.chain_name,
+    h.star_rating,
+    COUNT(r.room_number) AS total_rooms,
+    COUNT(CASE WHEN r.capacity = 'single' THEN 1 END) AS single_rooms,
+    COUNT(CASE WHEN r.capacity = 'double' THEN 1 END) AS double_rooms,
+    COUNT(CASE WHEN r.capacity = 'suite' THEN 1 END) AS suite_rooms,
+    COUNT(CASE WHEN r.capacity = 'family' THEN 1 END) AS family_rooms,
+    SUM(CASE
+      WHEN r.capacity = 'single' THEN 1
+      WHEN r.capacity = 'double' THEN 2
+      WHEN r.capacity = 'suite' THEN 2
+      WHEN r.capacity = 'family' THEN 4
+      ELSE 0
+    END) AS total_guest_capacity
+  FROM hotel h
+  JOIN hotel_chain hc ON h.hotel_chain_central_address = hc.central_address
+  LEFT JOIN room r ON h.hotel_id = r.hotel_id
+  GROUP BY h.hotel_id, h.address, hc.chain_name, h.star_rating
+`);
 
 // ============================================
 // AUTHENTICATION (Role-based access control)

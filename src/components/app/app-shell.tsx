@@ -4,12 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { type ComponentType, type ReactNode, useState, useEffect } from "react";
 import {
-    Bell,
     Building2,
     CalendarCheck2,
-    Hotel,
     LayoutDashboard,
-    LifeBuoy,
     Menu,
     Search,
     User,
@@ -23,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -65,7 +63,6 @@ const navItems: NavItem[] = [
     { label: "Reservations", href: "/employee/workflows", icon: CalendarCheck2 },
     { label: "Admin", href: "/admin/customers", icon: User },
     { label: "Reports", href: "/reports/rooms-per-area", icon: BarChart3 },
-    { label: "Support", href: "#", icon: LifeBuoy },
 ];
 
 function MainNav({ compact = false }: { compact?: boolean }) {
@@ -102,6 +99,7 @@ export function AppShell({
 }: AppShellProps) {
     const router = useRouter();
     const [session, setSession] = useState<SessionData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function loadSession() {
@@ -116,6 +114,8 @@ export function AppShell({
             } catch (error) {
                 console.error("Failed to load session:", error);
                 setSession(null);
+            } finally {
+                setIsLoading(false);
             }
         }
 
@@ -138,20 +138,15 @@ export function AppShell({
         employee: "role-accent-employee",
         admin: "role-accent-admin",
     }[session?.role || "customer"];
-
     return (
         <div className="app-frame min-h-screen">
             <div className="mx-auto flex min-h-screen w-full max-w-[1400px] bg-background/80 backdrop-blur-sm lg:border-x lg:border-border/40">
-                <aside className="surface-panel hidden w-72 shrink-0 rounded-r-3xl border-r border-border/70 bg-card/90 lg:flex lg:flex-col motion-reveal">
+                <aside className="surface-panel hidden w-72 shrink-0 border-x border-border/70 bg-card/90 lg:flex lg:flex-col motion-reveal">
                     <div className="space-y-6 p-6">
                         <div className="space-y-2">
-                            <Badge variant="secondary" className="gap-2 px-3 py-1 text-xs tracking-wide">
-                                <Hotel className="size-3.5" />
-                                e-Hotels
-                            </Badge>
                             <h1 className="font-heading text-2xl font-semibold text-strong">Operations Console</h1>
                             <p className="text-sm text-muted-foreground">
-                                {session ? `Logged in as ${session.role}` : "Loading..."}
+                                {isLoading ? "Loading..." : session ? `Logged in as ${session.role}` : "Not signed in"}
                             </p>
                         </div>
                         {session && (
@@ -190,7 +185,7 @@ export function AppShell({
                                     <SheetHeader className="space-y-1 border-b border-border/70 p-6">
                                         <SheetTitle className="text-xl">e-Hotels</SheetTitle>
                                         <SheetDescription>
-                                            {session ? `Logged in as ${session.role}` : "Loading..."}
+                                            {isLoading ? "Loading..." : session ? `Logged in as ${session.role}` : "Not signed in"}
                                         </SheetDescription>
                                     </SheetHeader>
                                     <div className="space-y-6 p-6">
@@ -219,44 +214,50 @@ export function AppShell({
                                 </Badge>
                             )}
 
-                            <Button variant="outline" size="icon" className="relative border-border/80 bg-[color:var(--surface-2)]" aria-label="Notifications">
-                                <Bell className="size-4" />
-                                <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-amber-500" />
-                            </Button>
-
                             <DropdownMenu>
                                 <DropdownMenuTrigger
                                     render={
-                                        <Button variant="ghost" className="h-10 rounded-full px-1.5" aria-label="Open profile menu" />
+                                        <Button
+                                            variant="ghost"
+                                            className="h-10 rounded-full px-1.5"
+                                            aria-label="Open profile menu"
+                                        >
+                                            <Avatar className="size-8 ring-1 ring-border">
+                                                <AvatarFallback className="bg-muted text-xs font-semibold">
+                                                    {userInitials}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Button>
                                     }
-                                >
-                                    <Avatar className="size-8 ring-1 ring-border">
-                                        <AvatarFallback className="bg-muted text-xs font-semibold">
-                                            {userInitials}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </DropdownMenuTrigger>
+                                />
                                 <DropdownMenuContent align="end" className="w-52 surface-panel">
-                                    <DropdownMenuLabel>e-Hotels Account</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    {session ? (
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuLabel>e-Hotels Account</DropdownMenuLabel>
+                                        {isLoading ? (
+                                            <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                                        ) : session ? (
+                                            <>
+                                                <DropdownMenuItem disabled>
+                                                    <User className="mr-2 size-4" />
+                                                    {session.email}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem disabled>
+                                                    <Building2 className="mr-2 size-4" />
+                                                    Role: {session.role}
+                                                </DropdownMenuItem>
+                                            </>
+                                        ) : (
+                                            <DropdownMenuItem disabled>Not signed in</DropdownMenuItem>
+                                        )}
+                                    </DropdownMenuGroup>
+                                    {session && (
                                         <>
-                                            <DropdownMenuItem disabled>
-                                                <User className="mr-2 size-4" />
-                                                {session.email}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem disabled>
-                                                <Building2 className="mr-2 size-4" />
-                                                Role: {session.role}
-                                            </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem onClick={handleSignOut}>
                                                 <LogOut className="mr-2 size-4" />
                                                 Sign Out
                                             </DropdownMenuItem>
                                         </>
-                                    ) : (
-                                        <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
                                     )}
                                 </DropdownMenuContent>
                             </DropdownMenu>

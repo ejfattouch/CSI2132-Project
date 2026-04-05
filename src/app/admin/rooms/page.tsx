@@ -294,9 +294,9 @@ export default async function RoomsAdminPage({ searchParams }: RoomsPageProps) {
 
                         <form action={deleteRoomAction}>
                           <input type="hidden" name="returnPath" value={returnPath} />
-                          <input type="hidden" name="hotelId" value={row.hotelId} />
+                          <input type="hidden" name="hotelId" value={String(row.hotelId)} />
                           <input type="hidden" name="roomNumber" value={row.roomNumber} />
-                          <Button size="sm" variant="destructive">Delete</Button>
+                          <Button type="submit" size="sm" variant="destructive">Delete</Button>
                         </form>
                       </div>
                     </TableCell>
