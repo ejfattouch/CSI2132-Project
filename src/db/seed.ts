@@ -1,6 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import { eq } from "drizzle-orm";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
+import crypto from "crypto";
 import {
   hotelChain,
   hotelChainPhone,
@@ -14,6 +16,7 @@ import {
   customer,
   booking,
   renting,
+  user,
 } from "./schema";
 
 dotenv.config();
@@ -23,6 +26,21 @@ const pool = new Pool({
 });
 
 const db = drizzle(pool);
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Hash a password using PBKDF2
+ */
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
+    .toString("hex");
+  return `${salt}:${hash}`;
+}
 
 // ============================================
 // SEED DATA
@@ -360,6 +378,7 @@ async function seed() {
     console.log("🗑️  Clearing existing data...");
     await db.delete(renting);
     await db.delete(booking);
+    await db.delete(user);
     await db.delete(roomProblems);
     await db.delete(roomAmenities);
     await db.delete(room);
@@ -397,10 +416,7 @@ async function seed() {
       if (manager) {
         await db.update(hotel)
           .set({ managerSsn: manager.ssn })
-          .where(
-            // @ts-ignore - hotelId comparison
-            require("drizzle-orm").eq(hotel.hotelId, h.hotelId)
-          );
+          .where(eq(hotel.hotelId, h.hotelId));
       }
     }
     console.log(`   ✓ Managers assigned`);
@@ -452,6 +468,44 @@ async function seed() {
     const rentingsData = generateRentings(insertedCustomers, roomsData, employeesData, insertedBookings);
     await db.insert(renting).values(rentingsData);
     console.log(`   ✓ ${rentingsData.length} rentings created`);
+
+    // Insert users (authentication)
+    console.log("🔐 Inserting authentication users...");
+    const testPassword = hashPassword("password123");
+    
+    const usersData = [
+      // Customer user
+      {
+        email: "customer@example.com",
+        passwordHash: testPassword,
+        role: "customer",
+        customerId: insertedCustomers[0]?.customerId || 1,
+        employeeSsn: null,
+      },
+      // Employee user
+      {
+        email: "employee@example.com",
+        passwordHash: testPassword,
+        role: "employee",
+        customerId: null,
+        employeeSsn: employeesData[0]?.ssn || null,
+      },
+      // Admin user
+      {
+        email: "admin@example.com",
+        passwordHash: testPassword,
+        role: "admin",
+        customerId: null,
+        employeeSsn: employeesData[0]?.ssn || null,
+      },
+    ];
+
+    await db.insert(user).values(usersData);
+    console.log(`   ✓ 3 authentication users created
+      - customer@example.com (customer)
+      - employee@example.com (employee)
+      - admin@example.com (admin)
+      Password for all: password123`);
 
     console.log("\n✅ Database seeded successfully!");
     console.log("\n📊 Summary:");
