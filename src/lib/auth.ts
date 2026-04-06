@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { db } from "@/db";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { hashPassword as hashPasswordInternal, verifyPassword } from "@/lib/password";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-in-production";
 const SESSION_NAME = "ehotels_session";
@@ -11,23 +12,18 @@ const SESSION_NAME = "ehotels_session";
  * Hash a password using PBKDF2 (simple, suitable for educational project)
  */
 export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-    .toString("hex");
-  return `${salt}:${hash}`;
+  return hashPasswordInternal(password);
 }
 
-/**
- * Verify a password against a hash
- */
-export function verifyPassword(password: string, hash: string): boolean {
-  const [salt, storedHash] = hash.split(":");
-  const computed = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-    .toString("hex");
-  return computed === storedHash;
-}
+type LoginErrorCode = "INVALID_CREDENTIALS" | "AUTH_SCHEMA_MISSING" | "AUTH_UNEXPECTED";
+
+type LoginResult =
+  | { success: true }
+  | {
+    success: false;
+    error: string;
+    code: LoginErrorCode;
+  };
 
 export type SessionData = {
   userId: number;
@@ -44,13 +40,14 @@ export type SessionData = {
 function createSessionToken(data: Omit<SessionData, "expiresAt">): string {
   const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
   const payload = JSON.stringify({ ...data, expiresAt });
+  const payloadBase64 = Buffer.from(payload, "utf-8").toString("base64url");
 
   const hmac = crypto
     .createHmac("sha256", SESSION_SECRET)
     .update(payload)
     .digest("hex");
 
-  return Buffer.from(`${payload}.${hmac}`).toString("base64");
+  return `${payloadBase64}.${hmac}`;
 }
 
 /**
@@ -58,8 +55,14 @@ function createSessionToken(data: Omit<SessionData, "expiresAt">): string {
  */
 function verifySessionToken(token: string): SessionData | null {
   try {
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
-    const [payloadStr, hmac] = decoded.split(".");
+    const splitIndex = token.indexOf(".");
+    if (splitIndex <= 0) {
+      return null;
+    }
+
+    const payloadBase64 = token.slice(0, splitIndex);
+    const hmac = token.slice(splitIndex + 1);
+    const payloadStr = Buffer.from(payloadBase64, "base64url").toString("utf-8");
 
     const payload = JSON.parse(payloadStr);
 
@@ -124,51 +127,73 @@ export async function clearSessionCookie() {
 /**
  * Login user by email and password
  */
-export async function loginUser(email: string, password: string) {
-  let userRecord: Array<typeof user.$inferSelect>;
+export async function loginUser(email: string, password: string): Promise<LoginResult> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPassword = password.trim();
+
+  if (!normalizedEmail || !normalizedPassword) {
+    return {
+      success: false as const,
+      error: "Invalid email or password",
+      code: "INVALID_CREDENTIALS" as const,
+    };
+  }
 
   try {
-    userRecord = await db
+    const userRecord = await db
       .select()
       .from(user)
-      .where(eq(user.email, email))
+      .where(eq(user.email, normalizedEmail))
       .limit(1);
-  } catch (error) {
-    const maybePgError = error as { code?: string; message?: string };
 
-    if (maybePgError.code === "42P01") {
+    if (!userRecord[0]) {
+      return {
+        success: false as const,
+        error: "Invalid email or password",
+        code: "INVALID_CREDENTIALS" as const,
+      };
+    }
+
+    const dbUser = userRecord[0];
+
+    if (!verifyPassword(normalizedPassword, dbUser.passwordHash)) {
+      return {
+        success: false as const,
+        error: "Invalid email or password",
+        code: "INVALID_CREDENTIALS" as const,
+      };
+    }
+
+    const role = dbUser.role as "customer" | "employee" | "admin";
+
+    await setSessionCookie({
+      userId: dbUser.userId,
+      email: dbUser.email,
+      role,
+      customerId: dbUser.customerId || undefined,
+      employeeSsn: dbUser.employeeSsn || undefined,
+    });
+
+    return { success: true as const };
+  } catch (error) {
+    const maybePgError = error as { code?: string };
+
+    if (maybePgError.code === "42P01" || maybePgError.code === "42703") {
       return {
         success: false as const,
         error:
-          "Authentication is not initialized. Run `npm run db:push` and `npm run db:seed`, then retry.",
+          "Authentication schema is not initialized. Run npm run db:push, psql -d ehotels -f src/db/migrations.sql, and npm run db:seed.",
         code: "AUTH_SCHEMA_MISSING" as const,
       };
     }
 
-    throw error;
+    console.error("Login unexpected error:", error);
+    return {
+      success: false as const,
+      error: "Unexpected server error during sign-in",
+      code: "AUTH_UNEXPECTED" as const,
+    };
   }
-
-  if (!userRecord[0]) {
-    return { success: false as const, error: "Invalid email or password" };
-  }
-
-  const dbUser = userRecord[0];
-
-  if (!verifyPassword(password, dbUser.passwordHash)) {
-    return { success: false as const, error: "Invalid email or password" };
-  }
-
-  const role = dbUser.role as "customer" | "employee" | "admin";
-
-  await setSessionCookie({
-    userId: dbUser.userId,
-    email: dbUser.email,
-    role,
-    customerId: dbUser.customerId || undefined,
-    employeeSsn: dbUser.employeeSsn || undefined,
-  });
-
-  return { success: true as const };
 }
 
 /**
@@ -179,7 +204,8 @@ export async function logoutUser() {
 }
 
 /**
- * Check if user has required role (case-insensitive)
+ * Check if user has required role and redirect if unauthorized
+ * This is the primary role guard for pages/routes
  */
 export async function requireRole(...roles: Array<"customer" | "employee" | "admin">) {
   const session = await getSession();
@@ -196,8 +222,17 @@ export async function requireRole(...roles: Array<"customer" | "employee" | "adm
 }
 
 /**
- * Require authentication (any role)
+ * Require authentication (any role) - returns session or null
  */
 export async function requireAuth() {
   return await getSession();
+}
+
+/**
+ * Helper to check if user has role (for guards)
+ * Returns true only if session exists and role matches
+ */
+export async function hasRole(...roles: Array<"customer" | "employee" | "admin">): Promise<boolean> {
+  const session = await getSession();
+  return !!session && roles.includes(session.role);
 }
