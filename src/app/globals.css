@@ -160,9 +160,11 @@
 
   body {
     background:
-      radial-gradient(circle at 12% 14%, color-mix(in oklab, var(--accent) 40%, transparent) 0%, transparent 36%),
-      radial-gradient(circle at 87% 86%, color-mix(in oklab, var(--primary) 32%, transparent) 0%, transparent 34%),
-      linear-gradient(160deg, color-mix(in oklab, var(--background) 82%, white) 0%, var(--background) 100%);
+      radial-gradient(circle at 14% 12%, color-mix(in oklab, var(--accent-soft) 30%, transparent) 0%, transparent 42%),
+      linear-gradient(160deg, color-mix(in oklab, var(--background) 88%, white) 0%, var(--background) 100%);
+    background-repeat: no-repeat, no-repeat;
+    background-size: 140% 110%, 100% 100%;
+    background-position: left top, center center;
     @apply text-foreground;
   }
 
@@ -203,12 +205,17 @@
   .app-frame::before {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: -10%;
     z-index: -1;
-    background-image: linear-gradient(color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(circle at center, black 14%, transparent 82%);
+    background:
+      radial-gradient(circle at 16% 18%, color-mix(in oklab, var(--accent-soft) 22%, transparent) 0%, transparent 34%),
+      radial-gradient(circle at 84% 80%, color-mix(in oklab, var(--primary) 16%, transparent) 0%, transparent 36%);
+    background-repeat: no-repeat, no-repeat;
+    background-size: 120% 110%, 120% 110%;
+    background-position: left top, right bottom;
+    filter: blur(10px);
+    opacity: 0.9;
+    transform: translateZ(0);
     pointer-events: none;
   }
 

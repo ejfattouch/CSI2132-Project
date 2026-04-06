@@ -60,7 +60,6 @@ export default function SignInPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-3 sm:p-4">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,color-mix(in_oklab,var(--accent)_45%,transparent)_0%,transparent_38%),radial-gradient(circle_at_82%_88%,color-mix(in_oklab,var(--primary)_30%,transparent)_0%,transparent_40%)]" />
       <div className="w-full max-w-md">
         <div className="motion-reveal mb-6 text-center sm:mb-8">
           <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border/70 bg-[color:var(--surface-2)] text-primary shadow-[var(--shadow-soft)]">
