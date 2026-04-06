@@ -15,15 +15,22 @@ export async function POST(request: NextRequest) {
     const result = await loginUser(email, password);
 
     if (!result.success) {
-      if ("code" in result && result.code === "AUTH_SCHEMA_MISSING") {
+      if (result.code === "AUTH_SCHEMA_MISSING") {
         return NextResponse.json(
-          { error: result.error },
+          { error: result.error, code: result.code },
           { status: 503 }
         );
       }
 
+      if (result.code === "AUTH_UNEXPECTED") {
+        return NextResponse.json(
+          { error: result.error, code: result.code },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json(
-        { error: result.error },
+        { error: result.error, code: result.code },
         { status: 401 }
       );
     }

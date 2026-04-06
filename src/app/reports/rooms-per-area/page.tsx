@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { AppShell } from "@/components/app/app-shell";
 import { ReportsNav } from "@/components/reports/reports-nav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,16 @@ export default function RoomsPerAreaPage() {
         setLoading(true);
         setError(null);
         const response = await fetch("/api/reports/rooms-per-area");
+
+        // Handle unauthorized access (API endpoint requires role)
+        if (response.status === 401) {
+          // Redirect to dashboard with unauthorized message
+          if (typeof window !== "undefined") {
+            window.location.href = "/?unauthorized=true";
+          }
+          return;
+        }
+
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }

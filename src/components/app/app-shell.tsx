@@ -55,22 +55,29 @@ type NavItem = {
     label: string;
     href: string;
     icon: ComponentType<{ className?: string }>;
+    allowedRoles?: ("customer" | "employee" | "admin")[];
 };
 
 const navItems: NavItem[] = [
-    { label: "Dashboard", href: "/", icon: LayoutDashboard },
-    { label: "Browse Hotels", href: "/browse-hotels", icon: Search },
-    { label: "Reservations", href: "/employee/workflows", icon: CalendarCheck2 },
-    { label: "Admin", href: "/admin/customers", icon: User },
-    { label: "Reports", href: "/reports/rooms-per-area", icon: BarChart3 },
+    { label: "Dashboard", href: "/", icon: LayoutDashboard, allowedRoles: ["customer", "employee", "admin"] },
+    { label: "Browse Hotels", href: "/browse-hotels", icon: Search, allowedRoles: ["customer"] },
+    { label: "Reservations", href: "/employee/workflows", icon: CalendarCheck2, allowedRoles: ["employee", "admin"] },
+    { label: "Admin", href: "/admin/customers", icon: User, allowedRoles: ["admin"] },
+    { label: "Reports", href: "/reports/rooms-per-area", icon: BarChart3, allowedRoles: ["customer", "employee", "admin"] },
 ];
 
-function MainNav({ compact = false }: { compact?: boolean }) {
+function getFilteredNavItems(role?: "customer" | "employee" | "admin"): NavItem[] {
+    if (!role) return [];
+    return navItems.filter((item) => !item.allowedRoles || item.allowedRoles.includes(role));
+}
+
+function MainNav({ compact = false, role }: { compact?: boolean; role?: "customer" | "employee" | "admin" }) {
     const pathname = usePathname();
+    const filteredItems = getFilteredNavItems(role);
 
     return (
         <nav className="space-y-1">
-            {navItems.map((item) => (
+            {filteredItems.map((item) => (
                 <Link
                     key={item.label}
                     href={item.href}
@@ -161,7 +168,7 @@ export function AppShell({
                     </div>
                     <Separator />
                     <div className="flex-1 p-4">
-                        <MainNav />
+                        <MainNav role={session?.role} />
                     </div>
                 </aside>
 
@@ -198,7 +205,7 @@ export function AppShell({
                                                 </Badge>
                                             </div>
                                         )}
-                                        <MainNav compact />
+                                        <MainNav compact role={session?.role} />
                                     </div>
                                 </SheetContent>
                             </Sheet>
