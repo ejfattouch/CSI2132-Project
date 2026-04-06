@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sql } from "drizzle-orm";
 
+import { requireRole } from "@/lib/auth";
 import { db } from "@/db";
 
 type DbRow = Record<string, unknown>;
@@ -163,6 +164,12 @@ async function ensureNoOverlaps(params: {
 }
 
 export async function createBookingAction(formData: FormData): Promise<void> {
+  // Customer role only - allow customers to create bookings
+  const session = await requireRole("customer");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = asString(formData.get("returnPath")) || "/bookings/new";
   const successPath = asString(formData.get("successPath")) || "/browse-hotels";
   let destinationPath = returnPath;
@@ -198,6 +205,12 @@ export async function createBookingAction(formData: FormData): Promise<void> {
 }
 
 export async function convertBookingToRentingAction(formData: FormData): Promise<void> {
+  // Employee role required - only employees can convert bookings to rentings
+  const session = await requireRole("employee", "admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = asString(formData.get("returnPath")) || "/employee/workflows";
   let destinationPath = returnPath;
 
@@ -287,6 +300,12 @@ export async function convertBookingToRentingAction(formData: FormData): Promise
 }
 
 export async function createDirectRentingAction(formData: FormData): Promise<void> {
+  // Employee role required - only employees can create direct rentings
+  const session = await requireRole("employee", "admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = asString(formData.get("returnPath")) || "/employee/workflows";
   let destinationPath = returnPath;
 
@@ -350,6 +369,12 @@ export async function createDirectRentingAction(formData: FormData): Promise<voi
 }
 
 export async function recordRentingPaymentAction(formData: FormData): Promise<void> {
+  // Employee role required - only employees can record payments
+  const session = await requireRole("employee", "admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = asString(formData.get("returnPath")) || "/employee/workflows";
   let destinationPath = returnPath;
 

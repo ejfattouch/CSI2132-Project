@@ -12,6 +12,17 @@ Phase 1 objective was to establish a production-quality frontend foundation befo
 
 The backend schema, triggers, and views are already present and unchanged in this phase.
 
+## Auth + Hydration Fix (April 2026)
+
+- Added targeted hydration mitigation at root layout level by enabling `suppressHydrationWarning` on `html` and `body` in `src/app/layout.tsx` to tolerate browser-extension-injected attributes while preserving normal app semantics.
+- Centralized password hashing/verification format into shared utility `src/lib/password.ts`, reused by both `src/lib/auth.ts` and `src/db/seed.ts` to keep credential format consistent.
+- Hardened `loginUser` in `src/lib/auth.ts` with explicit error codes:
+  - `INVALID_CREDENTIALS`
+  - `AUTH_SCHEMA_MISSING`
+  - `AUTH_UNEXPECTED`
+- Updated `src/app/api/auth/sign-in/route.ts` to return status + code mapping (401/503/500) and updated `src/app/auth/sign-in/page.tsx` to show clearer user-facing messages by failure type.
+- Made demo user creation in `src/db/seed.ts` robust and repeatable using per-user upsert on email conflict, refreshing password hash, role links, and timestamps.
+
 ## Completed Work In This Unit (Phase 8 - UI Micro-Polish Pass)
 
 ### 1) Visual rhythm and density improvements

@@ -29,6 +29,21 @@ export default function SignInPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.code === "INVALID_CREDENTIALS") {
+          setError("Invalid email or password.");
+          return;
+        }
+
+        if (data.code === "AUTH_SCHEMA_MISSING") {
+          setError("Authentication is not initialized. Please run database setup and seed.");
+          return;
+        }
+
+        if (data.code === "AUTH_UNEXPECTED") {
+          setError("Unexpected server error during sign-in. Please try again.");
+          return;
+        }
+
         setError(data.error || "Sign in failed");
         return;
       }

@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CalendarClock, CircleCheck, Hotel, UserRound } from "lucide-react";
 
+import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -57,6 +59,11 @@ function buildBrowsePath(params: Record<string, SearchParamValue>): string {
 }
 
 export default async function NewBookingPage({ searchParams }: BookingPageProps) {
+  // Customer role only
+  const session = await requireRole("customer");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
   const params = await searchParams;
 
   const hotelId = pickPositiveInt(params.hotelId);

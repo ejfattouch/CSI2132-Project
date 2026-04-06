@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sql } from "drizzle-orm";
 
+import { requireRole } from "@/lib/auth";
 import { db } from "@/db";
 import { CUSTOMER_ID_TYPES, ROOM_CAPACITIES, ROOM_VIEWS } from "@/lib/admin-constants";
 
@@ -160,6 +161,12 @@ async function roomHasLiveReferences(hotelId: number, roomNumber: number): Promi
 }
 
 export async function createCustomerAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/customers";
   let destination = returnPath;
 
@@ -188,6 +195,12 @@ export async function createCustomerAction(formData: FormData): Promise<void> {
 }
 
 export async function updateCustomerAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/customers";
   let destination = returnPath;
 
@@ -224,6 +237,12 @@ export async function updateCustomerAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteCustomerAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/customers";
   let destination = returnPath;
 
@@ -245,6 +264,12 @@ export async function deleteCustomerAction(formData: FormData): Promise<void> {
 }
 
 export async function createEmployeeAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/employees";
   let destination = returnPath;
 
@@ -274,6 +299,12 @@ export async function createEmployeeAction(formData: FormData): Promise<void> {
 }
 
 export async function updateEmployeeAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/employees";
   let destination = returnPath;
 
@@ -310,6 +341,12 @@ export async function updateEmployeeAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteEmployeeAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/employees";
   let destination = returnPath;
 
@@ -331,6 +368,12 @@ export async function deleteEmployeeAction(formData: FormData): Promise<void> {
 }
 
 export async function createHotelAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/hotels";
   let destination = returnPath;
 
@@ -366,6 +409,12 @@ export async function createHotelAction(formData: FormData): Promise<void> {
 }
 
 export async function updateHotelAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/hotels";
   let destination = returnPath;
 
@@ -410,6 +459,12 @@ export async function updateHotelAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteHotelAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/hotels";
   let destination = returnPath;
 
@@ -431,6 +486,12 @@ export async function deleteHotelAction(formData: FormData): Promise<void> {
 }
 
 export async function createRoomAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/rooms";
   let destination = returnPath;
 
@@ -470,6 +531,12 @@ export async function createRoomAction(formData: FormData): Promise<void> {
 }
 
 export async function updateRoomAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/rooms";
   let destination = returnPath;
 
@@ -514,6 +581,12 @@ export async function updateRoomAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteRoomAction(formData: FormData): Promise<void> {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const returnPath = readString(formData.get("returnPath")) || "/admin/rooms";
   let destination = returnPath;
 
