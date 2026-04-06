@@ -1,8 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import {eq, sql} from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
-import crypto from "crypto";
+import { hashPassword } from "../lib/password";
 import {
   hotelChain,
   hotelChainPhone,
@@ -26,21 +26,6 @@ const pool = new Pool({
 });
 
 const db = drizzle(pool);
-
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-
-/**
- * Hash a password using PBKDF2
- */
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-    .toString("hex");
-  return `${salt}:${hash}`;
-}
 
 // ============================================
 // SEED DATA
@@ -521,14 +506,12 @@ async function seed() {
     console.log(`   ✓ ${rentingsData.length} rentings created`);
 
     // Insert users (authentication)
-    console.log("🔐 Inserting authentication users...");
-    const testPassword = hashPassword("password123");
-    
+    console.log("🔐 Upserting authentication users...");
     const usersData = [
       // Customer user
       {
         email: "customer@example.com",
-        passwordHash: testPassword,
+        passwordHash: hashPassword("password123"),
         role: "customer",
         customerId: insertedCustomers[0]?.customerId || 1,
         employeeSsn: null,
@@ -536,7 +519,7 @@ async function seed() {
       // Employee user
       {
         email: "employee@example.com",
-        passwordHash: testPassword,
+        passwordHash: hashPassword("password123"),
         role: "employee",
         customerId: null,
         employeeSsn: employeesData[0]?.ssn || null,
@@ -544,15 +527,30 @@ async function seed() {
       // Admin user
       {
         email: "admin@example.com",
-        passwordHash: testPassword,
+        passwordHash: hashPassword("password123"),
         role: "admin",
         customerId: null,
         employeeSsn: employeesData[0]?.ssn || null,
       },
     ];
 
-    await db.insert(user).values(usersData);
-    console.log(`   ✓ 3 authentication users created
+    for (const demoUser of usersData) {
+      await db
+        .insert(user)
+        .values(demoUser)
+        .onConflictDoUpdate({
+          target: user.email,
+          set: {
+            passwordHash: demoUser.passwordHash,
+            role: demoUser.role,
+            customerId: demoUser.customerId,
+            employeeSsn: demoUser.employeeSsn,
+            updatedAt: sql`NOW()`,
+          },
+        });
+    }
+
+    console.log(`   ✓ 3 authentication users upserted
       - customer@example.com (customer)
       - employee@example.com (employee)
       - admin@example.com (admin)
