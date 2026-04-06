@@ -12,6 +12,19 @@ Phase 1 objective was to establish a production-quality frontend foundation befo
 
 The backend schema, triggers, and views are already present and unchanged in this phase.
 
+## Background + Booking Button Fix (April 2026)
+
+- Reworked the global background treatment in `src/app/globals.css` to remove the tiled app-frame overlay and replace it with a softer, non-repeating ambient composition.
+- Kept the warm hospitality direction but shifted it toward a more premium, layered feel with lighter depth and fewer decorative distractions.
+- Updated the booking page back link in `src/app/bookings/new/page.tsx` to use a server-safe class string instead of importing `buttonVariants` from the client button module.
+
+## Background + Hydration Stability Pass (April 2026)
+
+- Tightened global background settings in `src/app/globals.css` with explicit `background-repeat`, `background-size`, and `background-position` on both body and app-frame ambient layers.
+- Expanded ambient pseudo-element bounds to avoid edge clipping artifacts on wide screens.
+- Removed competing page-specific sign-in backdrop in `src/app/auth/sign-in/page.tsx` so all major screens share one consistent global backdrop.
+- Added targeted `suppressHydrationWarning` to form-heavy primitives in `src/components/ui/button.tsx` and `src/components/ui/input.tsx` to tolerate extension-injected attributes (for example `fdprocessedid`) while keeping root layout mitigation in place.
+
 ## Auth + Hydration Fix (April 2026)
 
 - Added targeted hydration mitigation at root layout level by enabling `suppressHydrationWarning` on `html` and `body` in `src/app/layout.tsx` to tolerate browser-extension-injected attributes while preserving normal app semantics.

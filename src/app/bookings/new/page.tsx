@@ -5,11 +5,10 @@ import { AlertCircle, CalendarClock, CircleCheck, Hotel, UserRound } from "lucid
 import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { createBookingAction } from "@/app/workflows/actions";
-import { cn } from "@/lib/utils";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -135,7 +134,10 @@ export default async function NewBookingPage({ searchParams }: BookingPageProps)
 
               <div className="flex flex-wrap gap-2 border-t border-border/70 pt-3">
                 <Button type="submit">Create Booking</Button>
-                <Link href={successPath} className={cn(buttonVariants({ variant: "outline" }))}>
+                <Link
+                  href={successPath}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-all duration-150 hover:-translate-y-0.5 hover:bg-[color:var(--surface-2)] active:translate-y-0 dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
+                >
                   Back To Browse Hotels
                 </Link>
               </div>
