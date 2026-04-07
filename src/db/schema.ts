@@ -259,6 +259,20 @@ export const hotelChainRelations = relations(hotelChain, ({ many }) => ({
   emails: many(hotelChainEmail),
 }));
 
+export const hotelChainPhoneRelations = relations(hotelChainPhone, ({ one }) => ({
+  chain: one(hotelChain, {
+    fields: [hotelChainPhone.centralAddress],
+    references: [hotelChain.centralAddress],
+  }),
+}));
+
+export const hotelChainEmailRelations = relations(hotelChainEmail, ({ one }) => ({
+  chain: one(hotelChain, {
+    fields: [hotelChainEmail.centralAddress],
+    references: [hotelChain.centralAddress],
+  }),
+}));
+
 export const hotelRelations = relations(hotel, ({ one, many }) => ({
   chain: one(hotelChain, {
     fields: [hotel.chainAddress],
@@ -271,6 +285,13 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
   rentings: many(renting),
 }));
 
+export const hotelPhoneRelations = relations(hotelPhone, ({ one }) => ({
+  hotel: one(hotel, {
+    fields: [hotelPhone.hotelId],
+    references: [hotel.hotelId],
+  }),
+}));
+
 export const roomRelations = relations(room, ({ one, many }) => ({
   hotel: one(hotel, {
     fields: [room.hotelId],
@@ -278,6 +299,20 @@ export const roomRelations = relations(room, ({ one, many }) => ({
   }),
   amenities: many(roomAmenities),
   problems: many(roomProblems),
+}));
+
+export const roomAmenitiesRelations = relations(roomAmenities, ({ one }) => ({
+  room: one(room, {
+    fields: [roomAmenities.roomNumber, roomAmenities.hotelId],
+    references: [room.roomNumber, room.hotelId],
+  }),
+}));
+
+export const roomProblemsRelations = relations(roomProblems, ({ one }) => ({
+  room: one(room, {
+    fields: [roomProblems.roomNumber, roomProblems.hotelId],
+    references: [room.roomNumber, room.hotelId],
+  }),
 }));
 
 export const employeeRelations = relations(employee, ({ one, many }) => ({
