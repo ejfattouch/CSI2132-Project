@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CircleCheck, Pencil, Plus } from "lucide-react";
 import { sql, type SQL } from "drizzle-orm";
 
+import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +84,12 @@ function formatMoney(amount: number): string {
 }
 
 export default async function RoomsAdminPage({ searchParams }: RoomsPageProps) {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const params = await searchParams;
   const q = pickString(params.q);
   const sort = pickString(params.sort) || "price-asc";

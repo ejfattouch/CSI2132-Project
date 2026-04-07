@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { AlertCircle, CircleCheck, CreditCard, LogIn, ShoppingBag } from "lucide-react";
 import { sql } from "drizzle-orm";
 
+import { requireRole } from "@/lib/auth";
 import {
   convertBookingToRentingAction,
   createDirectRentingAction,
@@ -54,6 +56,11 @@ function readString(value: unknown): string {
 }
 
 export default async function EmployeeWorkflowsPage({ searchParams }: WorkflowsPageProps) {
+  // Employee role required (admin can also access for oversight)
+  const session = await requireRole("employee", "admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
   const params = await searchParams;
   const error = pickString(params.error);
   const notice = pickString(params.notice);

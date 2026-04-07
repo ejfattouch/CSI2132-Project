@@ -1,6 +1,8 @@
-import { ArrowRight, CalendarDays, CircleDollarSign, Hotel, Sparkles } from "lucide-react";
+import { redirect } from "next/navigation";
+import { AlertCircle, ArrowRight, CalendarDays, CircleDollarSign, Hotel, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+import { requireAuth } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,10 +28,33 @@ const kpiCards = [
   },
 ];
 
-export default function HomePage() {
+type HomePageProps = {
+  searchParams: Promise<Record<string, string>>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  // Require authentication for all roles
+  const session = await requireAuth();
+  if (!session) {
+    redirect("/auth/sign-in");
+  }
+
+  const params = await searchParams;
+  const isUnauthorized = params.unauthorized === "true";
   return (
     <AppShell>
       <div className="space-y-5 sm:space-y-6 motion-reveal">
+        {isUnauthorized && (
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-sm text-destructive">Access Denied</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                You do not have permission to access the requested page. Only your authorized role-specific features are available.
+              </p>
+            </div>
+          </div>
+        )}
         <section className="surface-strong overflow-hidden rounded-3xl">
           <div className="grid gap-4 p-4 sm:gap-5 sm:p-6 md:grid-cols-[2fr_1fr] md:p-8">
             <div className="space-y-4">

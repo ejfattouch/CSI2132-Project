@@ -31,9 +31,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${manrope.variable} ${fraunces.variable} ${spaceMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">{children}</body>
+      <body suppressHydrationWarning className="min-h-full bg-background text-foreground">{children}</body>
     </html>
   );
 }

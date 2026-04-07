@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CircleCheck } from "lucide-react";
 
+import { requireRole } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppShell } from "@/components/app/app-shell";
@@ -27,6 +29,11 @@ function formatPrice(price: number): string {
 }
 
 export default async function BrowseHotelsPage({ searchParams }: BrowseHotelsPageProps) {
+  // Customer role only
+  const session = await requireRole("customer");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
   const params = await searchParams;
   const parsedFilters = parseBrowseHotelFilters(params);
   const notice = typeof params.notice === "string" ? params.notice : "";

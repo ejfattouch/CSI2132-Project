@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CircleCheck, Pencil, Plus } from "lucide-react";
 import { sql, type SQL } from "drizzle-orm";
 
+import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Badge } from "@/components/ui/badge";
@@ -72,6 +74,12 @@ function buildReturnPath(q: string, sort: string): string {
 }
 
 export default async function EmployeesAdminPage({ searchParams }: EmployeesPageProps) {
+  // Admin role required
+  const session = await requireRole("admin");
+  if (!session) {
+    redirect("/?unauthorized=true");
+  }
+
   const params = await searchParams;
   const q = pickString(params.q);
   const sort = pickString(params.sort) || "name-asc";
@@ -206,89 +214,89 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
             </div>
 
             <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>SSN</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Hotel</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={row.ssn}>
-                    <TableCell>{row.ssn}</TableCell>
-                    <TableCell>{row.fullName}</TableCell>
-                    <TableCell>{row.role}</TableCell>
-                    <TableCell>
-                      {row.hotelId} - <span className="text-muted-foreground">{row.hotelAddress}</span>
-                    </TableCell>
-                    <TableCell>{row.address}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Dialog>
-                          <DialogTrigger render={<Button size="sm" variant="outline" className="gap-1" />}>
-                            <Pencil className="size-3.5" />
-                            Edit
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-lg">
-                            <DialogHeader>
-                              <DialogTitle>Edit Employee</DialogTitle>
-                              <DialogDescription>Update hotel assignment or profile fields.</DialogDescription>
-                              <DialogDescription>Employee SSN: {row.ssn}</DialogDescription>
-                            </DialogHeader>
-                            <form action={updateEmployeeAction} className="space-y-1">
-                              <input type="hidden" name="returnPath" value={returnPath} />
-                              <input type="hidden" name="ssn" value={row.ssn} />
-                              <div className="space-y-1.5">
-                                <label htmlFor={`hotel-${row.ssn}`} className="text-sm font-medium">Hotel</label>
-                                <select
-                                  id={`hotel-${row.ssn}`}
-                                  name="hotelId"
-                                  required
-                                  defaultValue={String(row.hotelId)}
-                                  className="h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm"
-                                >
-                                  {hotelOptions.map((hotel) => (
-                                    <option key={hotel.hotelId} value={hotel.hotelId}>
-                                      Hotel {hotel.hotelId} - {hotel.address}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div className="space-y-1.5">
-                                <label htmlFor={`fullName-${row.ssn}`} className="text-sm font-medium">Full Name</label>
-                                <Input id={`fullName-${row.ssn}`} name="fullName" required defaultValue={row.fullName} />
-                              </div>
-                              <div className="space-y-1.5">
-                                <label htmlFor={`address-${row.ssn}`} className="text-sm font-medium">Address</label>
-                                <Input id={`address-${row.ssn}`} name="address" required defaultValue={row.address} />
-                              </div>
-                              <div className="space-y-1.5">
-                                <label htmlFor={`role-${row.ssn}`} className="text-sm font-medium">Role</label>
-                                <Input id={`role-${row.ssn}`} name="role" required defaultValue={row.role} />
-                              </div>
-                              <div className="flex justify-end gap-2 pt-1">
-                                <Button type="submit">Save Changes</Button>
-                              </div>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-
-                        <form action={deleteEmployeeAction}>
-                          <input type="hidden" name="returnPath" value={returnPath} />
-                          <input type="hidden" name="ssn" value={row.ssn} />
-                          <Button type="submit" size="sm" variant="destructive">Delete</Button>
-                        </form>
-                      </div>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>SSN</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Hotel</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.ssn}>
+                      <TableCell>{row.ssn}</TableCell>
+                      <TableCell>{row.fullName}</TableCell>
+                      <TableCell>{row.role}</TableCell>
+                      <TableCell>
+                        {row.hotelId} - <span className="text-muted-foreground">{row.hotelAddress}</span>
+                      </TableCell>
+                      <TableCell>{row.address}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Dialog>
+                            <DialogTrigger render={<Button size="sm" variant="outline" className="gap-1" />}>
+                              <Pencil className="size-3.5" />
+                              Edit
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-lg">
+                              <DialogHeader>
+                                <DialogTitle>Edit Employee</DialogTitle>
+                                <DialogDescription>Update hotel assignment or profile fields.</DialogDescription>
+                                <DialogDescription>Employee SSN: {row.ssn}</DialogDescription>
+                              </DialogHeader>
+                              <form action={updateEmployeeAction} className="space-y-1">
+                                <input type="hidden" name="returnPath" value={returnPath} />
+                                <input type="hidden" name="ssn" value={row.ssn} />
+                                <div className="space-y-1.5">
+                                  <label htmlFor={`hotel-${row.ssn}`} className="text-sm font-medium">Hotel</label>
+                                  <select
+                                    id={`hotel-${row.ssn}`}
+                                    name="hotelId"
+                                    required
+                                    defaultValue={String(row.hotelId)}
+                                    className="h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm"
+                                  >
+                                    {hotelOptions.map((hotel) => (
+                                      <option key={hotel.hotelId} value={hotel.hotelId}>
+                                        Hotel {hotel.hotelId} - {hotel.address}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label htmlFor={`fullName-${row.ssn}`} className="text-sm font-medium">Full Name</label>
+                                  <Input id={`fullName-${row.ssn}`} name="fullName" required defaultValue={row.fullName} />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label htmlFor={`address-${row.ssn}`} className="text-sm font-medium">Address</label>
+                                  <Input id={`address-${row.ssn}`} name="address" required defaultValue={row.address} />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label htmlFor={`role-${row.ssn}`} className="text-sm font-medium">Role</label>
+                                  <Input id={`role-${row.ssn}`} name="role" required defaultValue={row.role} />
+                                </div>
+                                <div className="flex justify-end gap-2 pt-1">
+                                  <Button type="submit">Save Changes</Button>
+                                </div>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+
+                          <form action={deleteEmployeeAction}>
+                            <input type="hidden" name="returnPath" value={returnPath} />
+                            <input type="hidden" name="ssn" value={row.ssn} />
+                            <Button type="submit" size="sm" variant="destructive">Delete</Button>
+                          </form>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
