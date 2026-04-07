@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AlertCircle, CircleCheck, CreditCard, LogIn, ShoppingBag } from "lucide-react";
+import { CreditCard, LogIn, ShoppingBag } from "lucide-react";
 import { sql } from "drizzle-orm";
 
 import { requireRole } from "@/lib/auth";
@@ -9,7 +9,7 @@ import {
   recordRentingPaymentAction,
 } from "@/app/workflows/actions";
 import { AppShell } from "@/components/app/app-shell";
-import { Badge } from "@/components/ui/badge";
+import { FlashMessage } from "@/components/app/flash-message";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -108,18 +108,7 @@ export default async function EmployeeWorkflowsPage({ searchParams }: WorkflowsP
   return (
     <AppShell pageLabel="Employee Desk" pageTitle="Check-In And Payment Workflows">
       <div className="space-y-5">
-        {notice ? (
-          <Badge className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
-            <CircleCheck className="size-3.5" />
-            {notice}
-          </Badge>
-        ) : null}
-        {error ? (
-          <Badge variant="destructive" className="gap-1.5">
-            <AlertCircle className="size-3.5" />
-            {error}
-          </Badge>
-        ) : null}
+        <FlashMessage notice={notice} error={error} />
 
         <div className="grid gap-4 xl:grid-cols-3">
           <Card className="border-border/70 bg-card/90">

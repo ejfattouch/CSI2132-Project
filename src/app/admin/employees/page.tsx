@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, CircleCheck, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { sql, type SQL } from "drizzle-orm";
 
 import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app/app-shell";
+import { FlashMessage } from "@/components/app/flash-message";
 import { AdminNav } from "@/components/admin/admin-nav";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -146,18 +146,7 @@ export default async function EmployeesAdminPage({ searchParams }: EmployeesPage
       <div className="space-y-5">
         <AdminNav />
 
-        {notice ? (
-          <Badge className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
-            <CircleCheck className="size-3.5" />
-            {notice}
-          </Badge>
-        ) : null}
-        {error ? (
-          <Badge variant="destructive" className="gap-1.5">
-            <AlertCircle className="size-3.5" />
-            {error}
-          </Badge>
-        ) : null}
+        <FlashMessage notice={notice} error={error} />
 
         <Card className="border-border/70 bg-card/90 overflow-hidden">
           <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

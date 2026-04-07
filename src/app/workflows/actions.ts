@@ -164,8 +164,8 @@ async function ensureNoOverlaps(params: {
 }
 
 export async function createBookingAction(formData: FormData): Promise<void> {
-  // Customer role only - allow customers to create bookings
-  const session = await requireRole("customer");
+  // Customer and admin roles can create bookings
+  const session = await requireRole("customer", "admin");
   if (!session) {
     redirect("/?unauthorized=true");
   }

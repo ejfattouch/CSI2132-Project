@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, CircleCheck } from "lucide-react";
 
 import { requireRole } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppShell } from "@/components/app/app-shell";
+import { FlashMessage } from "@/components/app/flash-message";
 import { BrowseHotelFilters } from "@/components/browse-hotels/browse-hotel-filters";
 import {
   getBrowseHotelsOptions,
@@ -29,8 +29,8 @@ function formatPrice(price: number): string {
 }
 
 export default async function BrowseHotelsPage({ searchParams }: BrowseHotelsPageProps) {
-  // Customer role only
-  const session = await requireRole("customer");
+  // Customer and admin roles can browse hotels
+  const session = await requireRole("customer", "admin");
   if (!session) {
     redirect("/?unauthorized=true");
   }
@@ -63,18 +63,7 @@ export default async function BrowseHotelsPage({ searchParams }: BrowseHotelsPag
       pageTitle="Browse Available Hotels"
     >
       <div className="space-y-5">
-        {notice ? (
-          <Badge className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
-            <CircleCheck className="size-3.5" />
-            {notice}
-          </Badge>
-        ) : null}
-        {error ? (
-          <Badge variant="destructive" className="gap-1.5">
-            <AlertCircle className="size-3.5" />
-            {error}
-          </Badge>
-        ) : null}
+        <FlashMessage notice={notice} error={error} />
 
         <BrowseHotelFilters initialFilters={parsedFilters} options={options} />
 

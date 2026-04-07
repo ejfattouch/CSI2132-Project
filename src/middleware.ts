@@ -5,8 +5,8 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   "/admin": ["admin"],
   "/employee": ["employee", "admin"],
   "/reports": ["customer", "employee", "admin"],
-  "/browse-hotels": ["customer"],
-  "/bookings": ["customer"],
+  "/browse-hotels": ["customer", "admin"],
+  "/bookings": ["customer", "admin"],
   "/workflows": ["employee", "admin"],
 };
 

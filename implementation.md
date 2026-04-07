@@ -12,6 +12,41 @@ Phase 1 objective was to establish a production-quality frontend foundation befo
 
 The backend schema, triggers, and views are already present and unchanged in this phase.
 
+## Role Policy Alignment + Dashboard Cleanup (April 2026)
+
+- Updated customer capability guards to include admin access for role-policy parity:
+  - `src/app/browse-hotels/page.tsx`
+  - `src/app/bookings/new/page.tsx`
+  - `src/app/workflows/actions.ts` (`createBookingAction`)
+- Updated app navigation filtering in `src/components/app/app-shell.tsx`:
+  - Admin now sees customer + employee + admin feature links.
+  - Added explicit `Bookings` shortcut for customer/admin roles.
+- Kept `src/middleware.ts` as a session gate only while aligning protected route role metadata with policy.
+- Replaced outdated dashboard placeholders and stale phase notes in `src/app/page.tsx` with role-aware quick actions:
+  - customer: browse, booking, reports
+  - employee: workflows, reports
+  - admin: customer/admin management + customer/employee/reporting shortcuts
+
+## Transient Mutation Feedback Refresh (April 2026)
+
+- Added reusable client flash feedback in `src/components/app/flash-message.tsx`.
+- The flash component hydrates `notice`/`error` query-param messages into dismissible banners, auto-dismisses success quickly, and keeps errors visible longer.
+- Implemented URL cleanup that removes only `notice` and `error` while preserving other query params (for example search/sort filters), so redirected page context remains intact.
+- Replaced static pinned success/error badges with transient flash banners across:
+  - `src/app/admin/customers/page.tsx`
+  - `src/app/admin/employees/page.tsx`
+  - `src/app/admin/hotels/page.tsx`
+  - `src/app/admin/rooms/page.tsx`
+  - `src/app/browse-hotels/page.tsx`
+  - `src/app/bookings/new/page.tsx`
+  - `src/app/employee/workflows/page.tsx`
+
+## Background Refresh Reimplementation (April 2026)
+
+- Reimplemented the backdrop as a true global composition in `src/app/globals.css` using `body`, `body::before`, and `body::after` so authenticated shell pages and public pages (including sign-in) share the same ambient treatment.
+- Removed shell-scoped ambient rendering from `.app-frame::before` to prevent inconsistent layering and visual regression between app-shell pages and non-shell pages.
+- Enforced explicit non-repeating settings (`background-repeat`, `background-size`, `background-position`) for all backdrop layers to avoid tiled/striped artifacts on wide screens.
+
 ## Background + Booking Button Fix (April 2026)
 
 - Reworked the global background treatment in `src/app/globals.css` to remove the tiled app-frame overlay and replace it with a softer, non-repeating ambient composition.

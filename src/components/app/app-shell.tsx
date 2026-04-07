@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { type ComponentType, type ReactNode, useState, useEffect } from "react";
 import {
     Building2,
+    CalendarDays,
     CalendarCheck2,
     LayoutDashboard,
     Menu,
@@ -60,7 +61,8 @@ type NavItem = {
 
 const navItems: NavItem[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard, allowedRoles: ["customer", "employee", "admin"] },
-    { label: "Browse Hotels", href: "/browse-hotels", icon: Search, allowedRoles: ["customer"] },
+    { label: "Browse Hotels", href: "/browse-hotels", icon: Search, allowedRoles: ["customer", "admin"] },
+    { label: "Bookings", href: "/bookings/new", icon: CalendarDays, allowedRoles: ["customer", "admin"] },
     { label: "Reservations", href: "/employee/workflows", icon: CalendarCheck2, allowedRoles: ["employee", "admin"] },
     { label: "Admin", href: "/admin/customers", icon: User, allowedRoles: ["admin"] },
     { label: "Reports", href: "/reports/rooms-per-area", icon: BarChart3, allowedRoles: ["customer", "employee", "admin"] },
